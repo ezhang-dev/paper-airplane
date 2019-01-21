@@ -1,17 +1,12 @@
 var express = require('express');
-var db = require('../db.js');
-var fs = require('fs');
-var path = require('path');
+var db = require('../module/db.js');
+var file = require('../module/file.js');
 var multer  = require('multer')
 
 var upload = multer({ dest: 'blob' })
 
-
 var router = express.Router();
 
-function generatePath(id){
-	return path.join("blob",id.toString())
-}
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -21,38 +16,26 @@ router.get('/', function(req, res) {
 router.post('/upload',upload.single('file'), async function(req, res) {
 	let id;
 	if (req.body.type=="text"){
-		let data = {
-		'time': new Date(),
-		'type': "text",
-		'text': req.body.text
-		}
-		id = await db.add(data)
+		id = await db.insertText(req.body.text)
 	}else{
-		let data = {
-		'time': new Date(),
-		'type': "file",
-		'text': req.file.originalname,
-		}
-		id = await db.add(data)
-		fs.renameSync(req.file.path,generatePath(id))
+		id = await db.insertFile(req.file.originalname)
+		file.moveFile(req.file.path,id);
 	}
 	res.send(id.toString());
 });
 
-router.put('/upload',async function(req, res) {
-	let data = {
-		'time': new Date(),
-		'type': "file",
-		'text': "file"
-	};
-	let id = await db.add(data)
-    req.pipe(fs.createWriteStream(generatePath(id),{flags:"w+"}))
+router.put('/upload/:name?',async function(req, res, next) {
+	if (!req.params.name) req.params.name="file"
+	let id = await db.insertFile(req.params.name)
+    req.pipe(file.writeStream(id))
     .on('error', (err) => next(err))
     .on('close', () => {
       res.send(id.toString());
     })
 });
+
 router.param('id', async function(req, res, next, id) {
+  if(isNaN(parseInt(id))) return next(new Error('Not a valid id'));
   var data = await db.get(id);
   if (data) {
       req.data = data;
@@ -62,8 +45,12 @@ router.param('id', async function(req, res, next, id) {
     }
 });
 
-router.get('/:id', function(req, res) {
-  res.send(req.data);
+router.get('/:id(\\d+)', function(req, res) {
+  if(req.data.type=="file"){
+	res.download(file.generatePath(req.data.id),req.data.content)
+  }else{
+	res.send(`<pre>{req.data.content}</pre>`)
+  }
 });
 
 

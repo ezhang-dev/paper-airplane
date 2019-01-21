@@ -9,6 +9,11 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+var db = require('./module/db.js');
+var file = require('./module/file.js');
+
+setInterval(db.deleteExpired,1000*60*30,file.deleteFile)
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

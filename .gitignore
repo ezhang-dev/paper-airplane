@@ -1,4 +1,6 @@
-blobs/*
+data.db
+
+blob/*
 # Logs
 logs
 *.log
