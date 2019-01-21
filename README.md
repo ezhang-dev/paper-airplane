@@ -1,4 +1,4 @@
-#Paper Airplane
+# Paper Airplane
 
 A simple, no fuss temporary pastebin and file host aimed at bridging the data gap between desktop and mobile.
 Content is accessed via 4 digit urls and expires after an hour.
