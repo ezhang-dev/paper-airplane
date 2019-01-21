@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  h1 Upload Success
+  p
+    | It can be accessed at 
+    a(href=url) #{url}
+  img(src="https://chart.apis.google.com/chart?cht=qr&chs=250x250&choe=UTF-8&chld=H|0&chl="+url)

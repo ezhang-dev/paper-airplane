@@ -1,5 +1,16 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Paper Airplane
+  h2 Upload a file or save some text
+  form#file(method='POST' action='/upload' enctype='multipart/form-data')
+    label(for='file') Pick a File: 
+    input(type='file' id='file' name='file') 
+    input(type='hidden' name='type' value="file") 
+    input(type='submit' value='Upload') 
+  hr
+  form#text(method='POST' action='/upload' enctype='multipart/form-data')
+    input(type='hidden' name='type' value="text") 
+    label(for='text') Input some text: 
+    textarea(name='text' rows="10" cols="200") 
+    input.full(type='submit' value='Save')

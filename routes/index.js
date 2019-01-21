@@ -1,6 +1,7 @@
 var express = require('express');
 var db = require('../module/db.js');
 var file = require('../module/file.js');
+var autolinker = require('autolinker');
 var multer  = require('multer')
 
 var upload = multer({ dest: 'blob' })
@@ -10,18 +11,20 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
-   res.render('index', { title: 'Express' });
+   res.render('index');
 });
 
-router.post('/upload',upload.single('file'), async function(req, res) {
+router.post('/upload',upload.single('file'), async function(req, res, next) {
 	let id;
 	if (req.body.type=="text"){
+		if(!req.body.text)req.body.text="";
 		id = await db.insertText(req.body.text)
 	}else{
+		if(!req.file) next(new Error('No File Selected'));
 		id = await db.insertFile(req.file.originalname)
 		file.moveFile(req.file.path,id);
 	}
-	res.send(id.toString());
+	res.render('upload',{url:req.protocol + '://' + req.get('host') + '/' + id.toString()});
 });
 
 router.put('/upload/:name?',async function(req, res, next) {
@@ -49,7 +52,7 @@ router.get('/:id(\\d+)', function(req, res) {
   if(req.data.type=="file"){
 	res.download(file.generatePath(req.data.id),req.data.content)
   }else{
-	res.send(`<pre>{req.data.content}</pre>`)
+	res.render('view',{text:autolinker.link(req.data.content.replace(/</g,"&lt").replace(/>/g,"&gt"))})
   }
 });
 
