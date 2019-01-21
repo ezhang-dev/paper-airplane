@@ -33,7 +33,7 @@ router.put('/upload/:name?',async function(req, res, next) {
     req.pipe(file.writeStream(id))
     .on('error', (err) => next(err))
     .on('close', () => {
-      res.send(id.toString());
+      res.send(req.protocol + '://' + req.get('host') + '/' + id.toString());
     })
 });
 

@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('paperairplane:server');
 var http = require('http');
-debug.enabled=true
+
 /**
  * Get port from environment and store in Express.
  */
