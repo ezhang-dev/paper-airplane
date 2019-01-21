@@ -1,4 +1,4 @@
-blobs
+blobs/*
 # Logs
 logs
 *.log
